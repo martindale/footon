@@ -40,15 +40,26 @@ Collection.prototype.find = function(query) {
 
 // save a new document to this collection
 Collection.prototype.save = function(document, callback) {
-	// if it's a valid object, create a document instance
-	// and call Document.save(), passing callback
+	// this method can be called expilicity
+	// but is automatically called by Document.update()
+	var doc = null;
+	if (typeof document === 'object') {
+		// if it's a valid object, create a document instance
+		doc = new Document(document, this);
+		// add to contents
+		this.contents.push(doc);
+		// write update to disk
+		this.write(callback);
+	}
+	return doc;
 };
 
 // update collection file on disk
-Collection.prototype.update = function(callback) {
+Collection.prototype.write = function(callback) {
 	// update collection file on disk
-	// this is called by Document.save()
+	// this is called by Collection.save()
 	// to update document in collection and on disk (async)
+	
 };
 
 module.exports = Collection;

@@ -5,3 +5,23 @@
  * class -> Document
  * descr -> Creates a document instance for the specified collection
  */
+
+var fs = require('fs')
+  , util = require('util')
+  , path = require('path')
+  , helpers = require('../helpers.js')
+  , config = require('../footon-config.js')
+  , EventEmitter = require('events').EventEmitter
+  , Document;
+  
+Document = function(object, collection) {
+	
+};
+
+Document.prototype.update = function(callback) {
+	
+};
+
+Document.prototype.remove = function(callback) {
+	
+};

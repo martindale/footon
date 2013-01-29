@@ -68,31 +68,48 @@ module.exports.getObjectById = function(id, arr) {
 // uses the passed object to select matching items in the specified collection
 // and return them in an array
 module.exports.queryCollection = function(query, collection_contents) {
-	// keep track of number of query params
-	var numParams = Object.keys(query).length
-	  , documents = collection_contents
-	  , results = [];
+	
+	var results = [];
 	
 	// if no params just return everything
 	if (numParams === 0) {
 		return collection.contents;
 	}
 	
-	// otherwise let's start matching up objects
-	for (var doc = 0; doc < documents.length; doc++) {
-		var current = documents[doc]
-		  , matchesQuery = false;
-		  
-		// iterate over query properties
-		for (var prop in query) {
-			// check if current has a corresponding property and matches query
-			matchesQuery = (current[prop] && current[prop] === query[prop]);
+	function query(query) {
+		if (typeof query === 'object') {
+			// keep track of number of query params
+			var numParams = Object.keys(query).length
+			  , documents = collection_contents;
+			
+			// otherwise let's start matching up objects
+			for (var doc = 0; doc < documents.length; doc++) {
+				var current = documents[doc]
+				  , matchesQuery = false;
+				  
+				// iterate over query properties
+				for (var prop in query) {
+					// check if current has a corresponding property and matches query
+					matchesQuery = (current[prop] && current[prop] === query[prop]);
+				}
+				
+				if (matchesQuery) {
+					results.push(current);
+				}
+			}
 		}
-		
-		if (matchesQuery) {
-			results.push(current);
-		}
+	};
+	
+	// if multiple queries
+	if (query instanceof Array) {
+		query.forEach(function(obj) {
+			query(obj);
+		});
+	} else {
+		// if just one
+		query(query);
 	}
+	
 	return results;
 };
 
