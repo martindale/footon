@@ -9,6 +9,7 @@
 var fs = require('fs')
   , util = require('util')
   , path = require('path')
+  , helpers = require('../helpers.js')
   , config = require('../footon-config.js')
   , EventEmitter = require('events').EventEmitter
   , Collection = require('./collection.js')
@@ -60,39 +61,55 @@ Database = function(db_name) {
 				} else {
 					if (stats.isFile()) {
 						// read the file
-						fs.readFile(collection_path, function(err, contents) {
-							if (err) {
-								db.emit('error', err);
-							} else {
-								// try to parse as JSON
-								try {
-									var parsed = JSON.parse(contents);
-									// make sure its an array
-									if (contents intanceof Array) {
-										// make sure they are all objects
-										contents.forEach(contents, function(doc, index) {
-											if (typeof this === 'object') {
-												// generate uuid
-												this.__id = createId();
-												// add it to collection
-												new_collection.push(new Document(doc));
-												// on last one push Collection instance to db
-												if (index === contents.length - 1) {
-													db.collections.push(new Collection(new_collection));
-												}
-											}
-										});
-									}
-								}
-							}
+						readCollection(collection_path, function(contents) {
+							parseCollection(contents);
 						});
 					}
 				}
 			});
-			// do this after loadin
-			if (index === totalCollections - 1) {
-				db.emit('ready', db);
-			}
+			
+			function readCollection(collection_path, callback) {
+				fs.readFile(collection_path, function(err, contents) {
+					if (err) {
+						db.emit('error', err);
+					} else {
+						callback.call(this, contents)
+					}
+				});
+			};
+			
+			function parseCollection(contents) {
+				// try to parse as JSON
+				try {
+					var parsed = JSON.parse(contents);
+					// make sure its an array
+					if (contents intanceof Array) {
+						// make sure they are all objects
+						contents.forEach(contents, function(doc, index) {
+							if (typeof this === 'object') {
+								// generate uuid
+								this.__id = helpers.createId();
+								// add it to collection
+								new_collection.push(new Document(doc));
+								// on last one push Collection instance to db
+								if (index === contents.length - 1) {
+									db.collections[path.basename(collection_path)] = new Collection(new_collection, db);
+									checkReadiness();
+								}
+							}
+						});
+					}
+				} catch(e) {
+					// do nothing if fails
+				}
+			};
+			
+			function checkReadiness() {
+				// do this after loadin
+				if (index === totalCollections - 1) {
+					db.emit('ready', db);
+				}
+			};
 		};
 	};
 
@@ -120,17 +137,9 @@ Database.prototype.config = function(collection_name) {
 
 // return specified collection or create new collection and return it
 Database.prototype.get = function(collection_name) {
-	
-};
-
-// effectively delete database
-Database.prototype.reset = function() {
-	
-};
-
-// utils
-function createId() {
-	var current_date = (new Date()).valueOf().toString()
-	  , random = Math.random().toString();
-	return crypto.createHash('sha1').update(current_date + random).digest('hex');
+	// if it exists then return a new instance
+	if (this.collections[collection_name]) {
+		return this.collections[collection_name]
+	}
+	this.collections[collection_name] = new Collection([], this);
 };
