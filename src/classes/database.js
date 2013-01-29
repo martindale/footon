@@ -93,14 +93,15 @@ Database = function(db_name) {
 								new_collection.push(new Document(doc));
 								// on last one push Collection instance to db
 								if (index === contents.length - 1) {
-									db.collections[path.basename(collection_path)] = new Collection(new_collection, db);
+									var collName = path.basename(collection_path);
+									db.collections[collName] = new Collection(new_collection, collName, db);
 									checkReadiness();
 								}
 							}
 						});
 					}
 				} catch(e) {
-					// do nothing if fails
+					checkReadiness();
 				}
 			};
 			
@@ -137,9 +138,14 @@ Database.prototype.config = function(collection_name) {
 
 // return specified collection or create new collection and return it
 Database.prototype.get = function(collection_name) {
+	var db = this;
 	// if it exists then return a new instance
 	if (this.collections[collection_name]) {
 		return this.collections[collection_name]
 	}
-	this.collections[collection_name] = new Collection([], this);
+	// doesn't already exists so create it
+	fs.writeFile(this.path + '/' + collection_name, '[]', function(err) {
+		if (err) db.emit('error', err);
+	});
+	return this.collections[collection_name] = new Collection([], collection_name, this);
 };

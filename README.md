@@ -25,10 +25,9 @@ Using database named "music", create a new collection of "playlists" and save a 
 
 ```javascript
 var footon = require('footon')
-  , music = footon('music')
-  , playlists = music.get('playlists');
-  
-var punkrock = playlists.add({
+  , music = footon('music');
+
+var punkrock = {
 	name : 'Punk Rock',
 	songs : [
 		{ 
@@ -43,7 +42,13 @@ var punkrock = playlists.add({
 		}
 	],
 	rating : 5
+};
+
+music.on('ready', function() {
+	var playlists = music.get('playlists');
+	playlists.save(punkrock);
 });
+
 
 ```
 
@@ -56,7 +61,7 @@ punkrock.songs.push({
 	track : 'I Kill Children'
 });
 
-punkrock.save();
+punkrock.update();
 ```
 
 To delete a document from a collection, just call `remove()`.

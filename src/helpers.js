@@ -53,3 +53,54 @@ module.exports.removeDirForce = function(dirPath) {
 		}
 	});
 };
+
+// finds the first object in an array whose __id property matches
+module.exports.getObjectById = function(id, arr) {
+	for (var obj = 0; obj < arr.length; obj++) {
+		var current = arr[obj];
+		if (current.__id === id) {
+			return current;
+		}
+	}
+	return null;
+};
+
+// uses the passed object to select matching items in the specified collection
+// and return them in an array
+module.exports.queryCollection = function(query, collection_contents) {
+	// keep track of number of query params
+	var numParams = Object.keys(query).length
+	  , documents = collection_contents
+	  , results = [];
+	
+	// if no params just return everything
+	if (numParams === 0) {
+		return collection.contents;
+	}
+	
+	// otherwise let's start matching up objects
+	for (var doc = 0; doc < documents.length; doc++) {
+		var current = documents[doc]
+		  , matchesQuery = false;
+		  
+		// iterate over query properties
+		for (var prop in query) {
+			// check if current has a corresponding property and matches query
+			matchesQuery = (current[prop] && current[prop] === query[prop]);
+		}
+		
+		if (matchesQuery) {
+			results.push(current);
+		}
+	}
+	return results;
+};
+
+// takes an array of objects and converts them into Document instances for the specified collection
+module.exports.convertToDocuments = function(obj_array, collection) {
+	var converted = [];
+	for (var obj = 0; obj < obj_array.length; obj++) {
+		converted.push(new Document(obj_array[obj], collection));
+	}
+	return converted;
+};
