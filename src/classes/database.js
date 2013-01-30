@@ -87,8 +87,6 @@ Database = function(db_name) {
 						// make sure they are all objects
 						contents.forEach(contents, function(doc, index) {
 							if (typeof this === 'object') {
-								// generate uuid
-								this.__id = helpers.createId();
 								// add it to collection
 								new_collection.push(new Document(doc));
 								// on last one push Collection instance to db
@@ -121,7 +119,7 @@ Database = function(db_name) {
 			if (err) {
 				db.emit('error', err);
 			} else {
-				callback.apply([target, db]);
+				if (callback) callback.apply([target, db]);
 			}
 		});
 	};
@@ -149,3 +147,10 @@ Database.prototype.get = function(collection_name) {
 	});
 	return this.collections[collection_name] = new Collection([], collection_name, this);
 };
+
+// remove database and delete from disk
+Database.prototype.remove = function(callback) {
+	
+};
+
+module.exports = Database;

@@ -3,7 +3,9 @@
 	"version": "0.1.0",
 	"description": "simple file-system based JSON store with querying, built for packaged node-webkit applications",
 	"main": "./src/footon.js",
-	"dependencies": {},
+	"dependencies": {
+		"commander" : "1.1.1"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/gordonwritescode/footon.git"
@@ -15,5 +17,8 @@
 		"json database"
 	],
 	"author": "Gordon Hall <gordon@gordonwritescode.com>",
-	"license": "BSD"
+	"license": "BSD",
+	"bin": {
+		"footon" : "src/cli.js"
+	}
 }

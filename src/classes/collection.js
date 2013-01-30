@@ -17,9 +17,24 @@ var fs = require('fs')
 Collection = function(contents, name, database) {
 	// save contents
 	this.contents = (contents instanceof Array) ? contents : [];
-	this.database = database;
-	this.name = name;
-	this.path = database.path + '/' + name;
+	
+	Object.defineProperty(obj, 'database', {
+		enumerable : false,
+		value : database,
+		writable : false
+	});
+	
+	Object.defineProperty(obj, 'path', {
+		enumerable : false,
+		value : database.path + '/' + name,
+		writable : false
+	});
+	
+	Object.defineProperty(obj, 'name', {
+		enumerable : false,
+		value : name,
+		writable : false
+	});
 };
 
 // inherit from EventEmitter
@@ -35,13 +50,11 @@ Collection.prototype.find = function(query) {
 	}
 	// otherwise query the collection
 	var docs = helpers.queryCollection(query, this.contents);
-	return helpers.convertToDocuments(docs, this);
+	return docs;
 };
 
 // save a new document to this collection
 Collection.prototype.save = function(document, callback) {
-	// this method can be called expilicity
-	// but is automatically called by Document.update()
 	var doc = null;
 	if (typeof document === 'object') {
 		// if it's a valid object, create a document instance
@@ -56,10 +69,17 @@ Collection.prototype.save = function(document, callback) {
 
 // update collection file on disk
 Collection.prototype.write = function(callback) {
+	var collection = this;
+	// this method can be called expilicity
+	// but is automatically called by Document.update()
+	var file = JSON.stringify(this.contents);
 	// update collection file on disk
+	fs.writeFile(this.path, file, function(err) {
+		if (err) collection.emit('err');
+		if (callback) callback.call(collection, err);
+	});
 	// this is called by Collection.save()
 	// to update document in collection and on disk (async)
-	
 };
 
 module.exports = Collection;

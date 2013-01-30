@@ -60,8 +60,6 @@ punkrock.songs.push({
 	album : 'Fresh Fruit For Rotting Vegetables', 
 	track : 'I Kill Children'
 });
-
-punkrock.update();
 ```
 
 To delete a document from a collection, just call `remove()`.
@@ -70,14 +68,25 @@ To delete a document from a collection, just call `remove()`.
 punkrock.remove();
 ```
 
+To commit your changes to disk, call `Collection.write()`
+
+```javascript
+punkrock.write(function(err) {
+	console.log(err || 'Changes saved!');
+});
+```
+
 Every document has a `__id` property, which can be used to target it directly using the `find()` 
 method.
 
 ```javascript
-playlists.find({ __id : 42 }); // returns single document
+playlists.find({ __id : '42' }); // returns single document
+// this works too!
+playlists.find('42'); // returns single document
 ```
 
 You can also use this method to query documents, by passing in other properties to be matched.
+There is also support for "or"-style queries, by passing an array of object to query against.
 
 ```javascript
 playlists.find({ rating : 5 }); // returns array of documents with a rating of 5
