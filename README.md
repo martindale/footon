@@ -9,7 +9,8 @@ At it's core, footon is a JavaScript interface for creating organized collection
 on the filesystem. It's a simple psueo-database that could be ideal for packaged applications with 
 the need to persist small amounts of data between sessions. Once a "collection" is read, it's 
 contents are stored in memory. It is a lightweight solution for applications needing to remember user 
-configuration or other data. It supports both asynchonous and synchronous operation (defaults to sync).
+configuration or other data. All operations are asynchronous and all classes inherit from `EventEmitter` 
+where applicable.
 
 ## installation
 
