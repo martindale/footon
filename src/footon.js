@@ -3,7 +3,8 @@
  * author: gordon hall <gordon@gordonwritescode.com>
  */
 
-var fServer = require('./footon-server.js')
+var Server = require('./classes/server.js')
+  , Connection = require('./classes/connection.js')
   , Database = require('./classes/database.js');
 
 // expose function to return new instance of "Database" class
@@ -12,5 +13,10 @@ module.exports = function(db_name) {
 	return new Database(db_name);
 };
 
-module.exports.listen = fServer.listen;
-module.exports.connect = fServer.connect;
+module.exports.createServer = function() {
+	return new Server();
+};
+
+module.exports.createConnection = function() {
+	return new Connection();
+};

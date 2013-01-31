@@ -5,7 +5,8 @@
  * helper functions
  */
 
-var crypto = require('crypto');
+var crypto = require('crypto')
+  , fs = require('fs');
 
 // helpers
 module.exports.createId = function() {
@@ -15,15 +16,15 @@ module.exports.createId = function() {
 };
 
 // borrowed from https://gist.github.com/807712
-module.exports.removeDirForce = function(dirPath) {
+module.exports.removeDirForce = function(dirPath, onErr) {
 	fs.readdir(dirPath, function(err, files) {
 		if (err) {
-			console.log(JSON.stringify(err));
+			onErr(err);
 		} else {
 			if (files.length === 0) {
 				fs.rmdir(dirPath, function(err) {
 					if (err) {
-						console.log(JSON.stringify(err));
+						onErr(err);
 					} else {
 						var parentPath = path.normalize(dirPath + '/..') + '/';
 						if (parentPath != path.normalize(rootPath)) {
@@ -36,12 +37,12 @@ module.exports.removeDirForce = function(dirPath) {
 					var filePath = dirPath + file;
 					fs.stat(filePath, function(err, stats) {
 						if (err) {
-							console.log(JSON.stringify(err));
+							onErr(err);
 						} else {
 							if (stats.isFile()) {
 								fs.unlink(filePath, function(err) {
 									if (err) {
-										console.log(JSON.stringify(err));
+										onErr(err);
 									}
 								});
 							}

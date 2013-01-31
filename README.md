@@ -25,9 +25,11 @@ $ npm install footon
 Using database named "music", create a new collection of "playlists" and save a playlist document to it.
 
 ```javascript
+// require footon and select the music database
 var footon = require('footon')
   , music = footon('music');
 
+// create a playlist document
 var punkrock = {
 	name : 'Punk Rock',
 	songs : [
@@ -45,9 +47,11 @@ var punkrock = {
 	rating : 5
 };
 
+// when the database is ready, get the playlists collection
+// and save our playlist document to it
 music.on('ready', function() {
 	var playlists = music.get('playlists');
-	playlists.save(punkrock);
+	playlists.add(punkrock);
 });
 
 
@@ -87,8 +91,47 @@ playlists.find('42'); // returns single document
 ```
 
 You can also use this method to query documents, by passing in other properties to be matched.
-There is also support for "or"-style queries, by passing an array of object to query against.
+There is also support for "or"-style queries, by passing an array of objects to query against.
 
 ```javascript
 playlists.find({ rating : 5 }); // returns array of documents with a rating of 5
 ```
+
+## Public API
+
+#### footon(database_name String)
+
+Returns an instance of `footon.Database` and populates it. If an existing database does not exist, it is created.  
+Inherits from `EventEmitter`.
+
+```javascript
+var myDatabase = footon('myDatabase');
+
+myDatabase.on('ready', function() {
+	// do stuff here
+});
+```
+
+#### footon.createServer(options Object)
+
+Feature currently unavailable.
+
+#### footon.createConnection(options Object)
+
+Feature currently unavailable.
+
+## Class Reference
+
+#### footon.Database
+
+
+#### footon.Collection
+
+
+#### footon.Document
+
+
+#### footon.Server
+
+
+#### footon.Connection

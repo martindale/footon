@@ -1,7 +1,8 @@
 {
 	"name": "footon",
-	"version": "0.1.0",
-	"description": "simple file-system based JSON store with querying, built for packaged node-webkit applications",
+	"preferGlobal" : true,
+	"version": "0.2.0",
+	"description": "simple file-system based JSON store with querying",
 	"main": "./src/footon.js",
 	"dependencies": {
 		"commander" : "1.1.1"
@@ -12,7 +13,6 @@
 	},
 	"keywords": [
 		"json store",
-		"node-webkit",
 		"file store",
 		"json database"
 	],

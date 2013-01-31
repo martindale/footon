@@ -10,20 +10,30 @@ var fs = require('fs')
   , util = require('util')
   , path = require('path')
   , helpers = require('../helpers.js')
-  , config = require('../footon-config.js')
+  , config = require('../config.js')
   , EventEmitter = require('events').EventEmitter
   , Collection = require('./collection.js')
   , Database;
 
 Database = function(db_name) {
 	var db = this
-	  , db_path = path.normalize(config.path) + '/' + db_name
-	  , totalCollections = 0;
+	  , db_path = path.normalize(config.path) + '/' + db_name;
 
 	this.name = db_name;
 	this.path = db_path;
 	this.collections = {};
 
+	db.load();
+};
+
+// inherit from EventEmitter
+util.inherits(Database, EventEmitter);
+
+// load local database into memory
+Database.prototype.load = function() {
+	var totalCollections = 0
+	  , db_path = this.path
+	  , db = this;
 	// determine if db already exists
 	fs.exists(db_path, function(exists) {
 		if (exists) {
@@ -38,14 +48,13 @@ Database = function(db_name) {
 		// read the collections
 		fs.readdir(db_path, function(err, files) {
 			if (err) {
-				this.emit('error', err);
+				db.emit('error', err);
 			} else {
 				if (files.length) {
 					totalCollections = files.length;
 					files.forEach(loadIn)
 				} else {
-				//	this.emit('ready', db);
-					console.log(db);
+					db.emit('ready', db);
 				}
 			}
 		});
@@ -59,8 +68,7 @@ Database = function(db_name) {
 			// make sure it's a file
 			fs.stat(collection_path, function(err, stats) {
 				if (err) {
-				//	this.emit('error', err);
-					console.log(err);
+					db.emit('error', err);
 				} else {
 					if (stats.isFile()) {
 						// read the file
@@ -74,8 +82,7 @@ Database = function(db_name) {
 			function readCollection(collection_path, callback) {
 				fs.readFile(collection_path, function(err, contents) {
 					if (err) {
-					//	this.emit('error', err);
-						console.log(err);
+						db.emit('error', err);
 					} else {
 						callback.call(this, contents)
 					}
@@ -98,9 +105,8 @@ Database = function(db_name) {
 			
 			function checkReadiness() {
 				// do this after loadin
-				if (index === totalCollections - 1) {
-				//	this.emit('ready', db);
-					console.log(db);
+				if (index === totalCollections - 1 || totalCollections === 0) {
+					db.emit('ready', db);
 				}
 			};
 		};
@@ -121,8 +127,7 @@ Database = function(db_name) {
 		function make(target) {
 			fs.mkdir(target, function(err) {
 				if (err) {
-					console.log(err);
-					this.emit('error', err);
+					db.emit('error', err);
 				} else {
 					if (callback) callback.apply([target, db]);
 				}
@@ -132,22 +137,13 @@ Database = function(db_name) {
 		function setup(fn) {
 			fs.mkdir(config.path, function(err) {
 				if (err) {
-					console.log(err);
+					db.emit('error', err);
 				} else {
 					if (fn) fn(target);
 				}
 			});
 		};
 	};
-
-};
-
-// inherit from EventEmitter
-util.inherits(Database, EventEmitter);
-
-// set options for database
-Database.prototype.config = function(collection_name) {
-	
 };
 
 // return specified collection or create new collection and return it
@@ -165,8 +161,11 @@ Database.prototype.get = function(collection_name) {
 };
 
 // remove database and delete from disk
-Database.prototype.remove = function(callback) {
-	
+Database.prototype.reset = function() {
+	var db = this;
+	helpers.removeDirForce(this.path + '/', function(err) {
+		db.emit('error', err);
+	});
 };
 
 module.exports = Database;

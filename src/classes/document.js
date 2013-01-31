@@ -10,7 +10,7 @@ var fs = require('fs')
   , util = require('util')
   , path = require('path')
   , helpers = require('../helpers.js')
-  , config = require('../footon-config.js')
+  , config = require('../config.js')
   , EventEmitter = require('events').EventEmitter
   , Collection = require('./collection.js')
   , Document;

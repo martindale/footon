@@ -10,7 +10,7 @@ var fs = require('fs')
   , util = require('util')
   , path = require('path')
   , helpers = require('../helpers.js')
-  , config = require('../footon-config.js')
+  , config = require('../config.js')
   , EventEmitter = require('events').EventEmitter
   , Document = require('./document.js')
   , Collection;
@@ -63,7 +63,7 @@ Collection.prototype.find = function(query) {
 };
 
 // save a new document to this collection
-Collection.prototype.save = function(document, callback) {
+Collection.prototype.add = function(document, callback) {
 	var doc = null;
 	if (typeof document === 'object') {
 		// if it's a valid object, create a document instance
