@@ -3,12 +3,13 @@
  * author: gordon hall <gordon@gordonwritescode.com>
  */
 
-var fServer = require('./footon-server.js');
+var fServer = require('./footon-server.js')
+  , Database = require('./classes/database.js');
 
 // expose function to return new instance of "Database" class
 // this is for local databases
 module.exports = function(db_name) {
-	return new require('./classes/database.js')(db_name);
+	return new Database(db_name);
 };
 
 module.exports.listen = fServer.listen;

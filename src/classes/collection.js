@@ -12,25 +12,34 @@ var fs = require('fs')
   , helpers = require('../helpers.js')
   , config = require('../footon-config.js')
   , EventEmitter = require('events').EventEmitter
+  , Document = require('./document.js')
   , Collection;
   
 Collection = function(contents, name, database) {
+	var collection = this;
 	// save contents
-	this.contents = (contents instanceof Array) ? contents : [];
+	this.contents = [];
 	
-	Object.defineProperty(obj, 'database', {
+	if (contents instanceof Array) {
+		contents.forEach(function(val) {
+			var doc = new Document(val, collection);
+			collection.contents.push(doc);
+		});
+	}
+	
+	Object.defineProperty(this, 'database', {
 		enumerable : false,
 		value : database,
 		writable : false
 	});
 	
-	Object.defineProperty(obj, 'path', {
+	Object.defineProperty(this, 'path', {
 		enumerable : false,
 		value : database.path + '/' + name,
 		writable : false
 	});
 	
-	Object.defineProperty(obj, 'name', {
+	Object.defineProperty(this, 'name', {
 		enumerable : false,
 		value : name,
 		writable : false
@@ -46,7 +55,7 @@ Collection.prototype.find = function(query) {
 	if ((typeof query === 'object' && query.__id) || (typeof query === 'string')) {
 		var id = query.__id || query
 		  , doc = helpers.getObjectById(id, this.contents);
-		return (doc) ? new Document(doc, this) || null;
+		return (doc) ? new Document(doc, this) : null;
 	}
 	// otherwise query the collection
 	var docs = helpers.queryCollection(query, this.contents);

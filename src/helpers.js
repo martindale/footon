@@ -5,6 +5,8 @@
  * helper functions
  */
 
+var crypto = require('crypto');
+
 // helpers
 module.exports.createId = function() {
 	var current_date = (new Date()).valueOf().toString()
@@ -67,20 +69,15 @@ module.exports.getObjectById = function(id, arr) {
 
 // uses the passed object to select matching items in the specified collection
 // and return them in an array
-module.exports.queryCollection = function(query, collection_contents) {
+module.exports.queryCollection = function(obj, collection_contents) {
 	
-	var results = [];
+	var results = [], numParams;
 	
-	// if no params just return everything
-	if (numParams === 0) {
-		return collection.contents;
-	}
-	
-	function query(query) {
-		if (typeof query === 'object') {
+	function query(obj) {
+		if (typeof obj === 'object') {
 			// keep track of number of query params
-			var numParams = Object.keys(query).length
-			  , documents = collection_contents;
+			numParams = Object.keys(obj).length
+			var documents = collection_contents;
 			
 			// otherwise let's start matching up objects
 			for (var doc = 0; doc < documents.length; doc++) {
@@ -88,9 +85,9 @@ module.exports.queryCollection = function(query, collection_contents) {
 				  , matchesQuery = false;
 				  
 				// iterate over query properties
-				for (var prop in query) {
+				for (var prop in obj) {
 					// check if current has a corresponding property and matches query
-					matchesQuery = (current[prop] && current[prop] === query[prop]);
+					matchesQuery = (current[prop] && current[prop] === obj[prop]);
 				}
 				
 				if (matchesQuery) {
@@ -101,13 +98,18 @@ module.exports.queryCollection = function(query, collection_contents) {
 	};
 	
 	// if multiple queries
-	if (query instanceof Array) {
-		query.forEach(function(obj) {
-			query(obj);
+	if (obj instanceof Array) {
+		obj.forEach(function(val) {
+			query(val);
 		});
 	} else {
 		// if just one
-		query(query);
+		query(obj);
+	}
+	
+	// if no params just return everything
+	if (numParams === 0) {
+		return collection_contents;
 	}
 	
 	return results;

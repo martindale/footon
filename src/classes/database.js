@@ -38,13 +38,14 @@ Database = function(db_name) {
 		// read the collections
 		fs.readdir(db_path, function(err, files) {
 			if (err) {
-				db.emit('error', err);
+				this.emit('error', err);
 			} else {
 				if (files.length) {
 					totalCollections = files.length;
-					files.forEach(files, loadIn)
+					files.forEach(loadIn)
 				} else {
-					db.emit('ready', db);
+				//	this.emit('ready', db);
+					console.log(db);
 				}
 			}
 		});
@@ -53,11 +54,13 @@ Database = function(db_name) {
 		// and push new Collection instance to this.collections
 		// emit "ready" event when done
 		function loadIn(collection_path, index) {
+			collection_path = db_path + '/' + collection_path;
 			var new_collection = [];
 			// make sure it's a file
 			fs.stat(collection_path, function(err, stats) {
 				if (err) {
-					db.emit('error', err);
+				//	this.emit('error', err);
+					console.log(err);
 				} else {
 					if (stats.isFile()) {
 						// read the file
@@ -71,7 +74,8 @@ Database = function(db_name) {
 			function readCollection(collection_path, callback) {
 				fs.readFile(collection_path, function(err, contents) {
 					if (err) {
-						db.emit('error', err);
+					//	this.emit('error', err);
+						console.log(err);
 					} else {
 						callback.call(this, contents)
 					}
@@ -79,34 +83,24 @@ Database = function(db_name) {
 			};
 			
 			function parseCollection(contents) {
-				// try to parse as JSON
-				try {
+			//	try {
 					var parsed = JSON.parse(contents);
 					// make sure its an array
-					if (contents intanceof Array) {
-						// make sure they are all objects
-						contents.forEach(contents, function(doc, index) {
-							if (typeof this === 'object') {
-								// add it to collection
-								new_collection.push(new Document(doc));
-								// on last one push Collection instance to db
-								if (index === contents.length - 1) {
-									var collName = path.basename(collection_path);
-									db.collections[collName] = new Collection(new_collection, collName, db);
-									checkReadiness();
-								}
-							}
-						});
+					if (parsed instanceof Array) {
+						var name = path.basename(collection_path);
+						db.collections[name] = new Collection(parsed, name, db);
+						checkReadiness();
 					}
-				} catch(e) {
-					checkReadiness();
-				}
+			//	} catch(e) {
+			//		checkReadiness();
+			//	}
 			};
 			
 			function checkReadiness() {
 				// do this after loadin
 				if (index === totalCollections - 1) {
-					db.emit('ready', db);
+				//	this.emit('ready', db);
+					console.log(db);
 				}
 			};
 		};
@@ -115,13 +109,35 @@ Database = function(db_name) {
 	// creates a new database and fires the callback
 	// passing in the path and db instance
 	function createDatabase(target, callback) {
-		fs.mkdir(target, function(err) {
-			if (err) {
-				db.emit('error', err);
+		// first make sure path is valid
+		fs.exists(config.path, function(exists) {
+			if (exists) {
+				make(target);
 			} else {
-				if (callback) callback.apply([target, db]);
+				setup(make);
 			}
 		});
+		
+		function make(target) {
+			fs.mkdir(target, function(err) {
+				if (err) {
+					console.log(err);
+					this.emit('error', err);
+				} else {
+					if (callback) callback.apply([target, db]);
+				}
+			});
+		};
+		
+		function setup(fn) {
+			fs.mkdir(config.path, function(err) {
+				if (err) {
+					console.log(err);
+				} else {
+					if (fn) fn(target);
+				}
+			});
+		};
 	};
 
 };

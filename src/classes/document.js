@@ -18,7 +18,7 @@ var fs = require('fs')
 
 Document = function(object, collection) {
 	// throw error if no collection
-	if (!collection || !(collection instanceof Collection)) {
+	if (!collection || !(collection instanceof Collection.constructor)) {
 		throw new Error('Document must be instantied with a valid Collection.');
 	}
 	// take contents of object and set them to this object
@@ -28,13 +28,13 @@ Document = function(object, collection) {
 		}
 	}
 	
-	Object.defineProperty(obj, '__collection', {
+	Object.defineProperty(this, '__collection', {
 		enumerable : false,
 		value : collection,
 		writable : true
 	});
 	
-	Object.defineProperty(obj, '__id', {
+	Object.defineProperty(this, '__id', {
 		enumerable : false,
 		value : helpers.createId(),
 		writable : false
@@ -45,7 +45,7 @@ Document = function(object, collection) {
 Document.prototype.remove = function(callback) {
 	var position = this.__collection.contents.indexOf(this);
 	if (position !== -1) {
-		this.__collection.splice(position, 1);
+		this.__collection.contents.splice(position, 1);
 		this.__collection.write(callback);
 	}
 };

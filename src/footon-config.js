@@ -6,7 +6,7 @@
  */
 
 module.exports = {
-	path : __dirname + '.databases',
+	path : __dirname + '/.databases',
 	collectionExtension : 'footon',
 	net : {
 		port : 7777,
