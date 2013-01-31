@@ -76,7 +76,7 @@ punkrock.remove();
 To commit your changes to disk, call `Collection.write()`
 
 ```javascript
-punkrock.write(function(err) {
+punkrock.save(function(err) {
 	console.log(err || 'Changes saved!');
 });
 ```

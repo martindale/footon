@@ -1,7 +1,7 @@
 {
 	"name": "footon",
 	"preferGlobal" : true,
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "simple file-system based JSON store with querying",
 	"main": "./src/footon.js",
 	"dependencies": {

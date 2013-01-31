@@ -46,7 +46,7 @@ Document.prototype.remove = function(callback) {
 	var position = this.__collection.contents.indexOf(this);
 	if (position !== -1) {
 		this.__collection.contents.splice(position, 1);
-		this.__collection.write(callback);
+		this.__collection.save(callback);
 	}
 };
 

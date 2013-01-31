@@ -71,13 +71,13 @@ Collection.prototype.add = function(document, callback) {
 		// add to contents
 		this.contents.push(doc);
 		// write update to disk
-		this.write(callback);
+		this.save(callback);
 	}
 	return doc;
 };
 
 // update collection file on disk
-Collection.prototype.write = function(callback) {
+Collection.prototype.save = function(callback) {
 	var collection = this;
 	// this method can be called expilicity
 	// but is automatically called by Document.update()
