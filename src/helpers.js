@@ -82,16 +82,9 @@ module.exports.queryCollection = function(obj, collection_contents) {
 			
 			// otherwise let's start matching up objects
 			for (var doc = 0; doc < documents.length; doc++) {
-				var current = documents[doc]
-				  , matchesQuery = false;
-				  
-				// iterate over query properties
-				for (var prop in obj) {
-					// check if current has a corresponding property and matches query
-					matchesQuery = (current[prop] && current[prop] === obj[prop]);
-				}
+				var current = documents[doc];
 				
-				if (matchesQuery) {
+				if (module.exports.matchesQuery(obj, current)) {
 					results.push(current);
 				}
 			}
@@ -114,6 +107,27 @@ module.exports.queryCollection = function(obj, collection_contents) {
 	}
 	
 	return results;
+};
+
+// recursive matching of two object
+module.exports.matchesQuery = function(query, document) {
+	var isMatch = false
+	for (var prop in query) {
+		if (typeof query[prop] === 'object') {
+			// this will also iterate over arrays even though
+			// it is a for ... in loop, but we should be fine
+			// since we are still sort of enumerating instead of
+			// iterating (sequence does not matter)
+			return module.exports.matchesQuery(query[prop], document[prop]);
+		}
+
+		if (document[prop] && document[prop] === query[prop]) {
+			isMatch = true;
+		} else {
+			isMatch = false;
+		}
+	}
+	return isMatch;
 };
 
 // takes an array of objects and converts them into Document instances for the specified collection

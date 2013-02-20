@@ -11,5 +11,6 @@ module.exports = {
 	net : {
 		port : 7777,
 		pass : null
-	}
+	},
+	queueInterval : 10
 };

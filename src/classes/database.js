@@ -153,10 +153,6 @@ Database.prototype.get = function(collection_name) {
 	if (this.collections[collection_name]) {
 		return this.collections[collection_name]
 	}
-	// doesn't already exists so create it
-	fs.writeFile(this.path + '/' + collection_name, '[]', function(err) {
-		if (err) db.emit('error', err);
-	});
 	return this.collections[collection_name] = new Collection([], collection_name, this);
 };
 

@@ -81,9 +81,9 @@ Collection.prototype.save = function(callback) {
 	var collection = this;
 	// this method can be called expilicity
 	// but is automatically called by Document.update()
-	var file = JSON.stringify(this.contents);
+	var file = JSON.stringify(collection.contents);
 	// update collection file on disk
-	fs.writeFile(this.path, file, function(err) {
+	fs.writeFile(collection.path, file, function(err) {
 		if (err) collection.emit('err');
 		if (callback) callback.call(collection, err);
 	});
