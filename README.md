@@ -67,16 +67,10 @@ punkrock.songs.push({
 });
 ```
 
-To delete a document from a collection, just call `remove()`.
+To commit your changes to disk, call `Collection.save()`
 
 ```javascript
-punkrock.remove();
-```
-
-To commit your changes to disk, call `Collection.write()`
-
-```javascript
-punkrock.save(function(err) {
+playlists.save(function(err) {
 	console.log(err || 'Changes saved!');
 });
 ```
@@ -124,14 +118,42 @@ Feature currently unavailable.
 
 #### footon.Database
 
+##### Database.load()
+
+Loads the database collections into memory. Emits a `"ready"` event when finished.
+
+##### Database.get(collection_name String)
+
+Returns an existing `Collection` or creates a new one.
+
+##### Database.reset()
+
+Deletes database from disk.
 
 #### footon.Collection
 
+##### Collection.find(query Object)
+
+Returns an array of matched documents from the collection. If an array of object is passed, they are queried against "$or"-style. This method is recursive and will query sub-objects and arrays.
+
+##### Collection.add(document Object, callback Function)
+
+Returns a `Document` from the object passed and passes callback to `Collection.save()` which is called automatically.
+
+##### Collection.save(callback Function)
+
+Writes the current state of the collection to disk, then fires the passed `callback` if it exists.
 
 #### footon.Document
 
+##### Document.remove()
+
+Removes the document from it's collection and calls `Collection.save()`
 
 #### footon.Server
 
+Feature currently unavailable.
 
 #### footon.Connection
+
+Feature currently unavailable.

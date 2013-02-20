@@ -150,7 +150,7 @@ Database.prototype.load = function() {
 Database.prototype.get = function(collection_name) {
 	var db = this;
 	// if it exists then return a new instance
-	if (this.collections[collection_name]) {
+	if (db.collections[collection_name]) {
 		return this.collections[collection_name]
 	}
 	return this.collections[collection_name] = new Collection([], collection_name, this);
