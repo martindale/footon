@@ -35,7 +35,7 @@ Database = function(db_name, readOnly) {
 	if (!db.repository.isRepository) {
 		console.log(
 			clc.bold.cyan('Footon: '), 
-			clc.white('initilizing git repository for database "'), 
+			clc.white('initializing git repository for database "'), 
 			clc.bold.whiteBright(db.name), 
 			clc.white('"')
 		);
@@ -56,6 +56,35 @@ Database = function(db_name, readOnly) {
 		});
 	}
 	
+	// commit staged files
+	console.log(
+		clc.bold.cyan('Footon: '), 
+		clc.white('committing staged changes to database "'), 
+		clc.bold.whiteBright(db.name), 
+		clc.white('" ...')
+	);
+	db.repository.commit('footon updated this database on ' + new Date(), function(commitErr, commitData) {
+		if (!commitErr) {
+			console.log(
+				clc.bold.cyan('Footon: '), 
+				clc.white('repository for "'), 
+				clc.bold.whiteBright(db.name), 
+				clc.white('" updated')
+			);
+		} else {
+			console.log(
+				clc.bold.cyan('Footon: '), 
+				clc.red('failed to commit changes to "'), 
+				clc.bold.redBright(db.name), 
+				clc.red('"')
+			);
+			console.log(
+				clc.bold.cyan('Footon: '), 
+				clc.red(commitErr)
+			);
+		}
+	}, false);
+	
 	// commit changes to disk synchronously
 	// when the process exits
 	process.on('exit', function() {
@@ -73,32 +102,20 @@ Database = function(db_name, readOnly) {
 				files.push(collection.path);
 			}
 			// stage files for commit
-			db.repository.add(files, function(err) {
-				if (!err) {
-					// commit files
-					db.repository.commit('', function(err) {
-						if (!err) {
-							console.log(
-								clc.bold.cyan('Footon: '), 
-								clc.white('repository for "'), 
-								clc.bold.whiteBright(db.name), 
-								clc.white('" updated')
-							);
-						} else {
-							console.log(
-								clc.bold.cyan('Footon: '), 
-								clc.red('failed to commit changes to "'), 
-								clc.bold.redBright(db.name), 
-								clc.red('"')
-							);
-						}
-					}, true);
+			db.repository.add(files, function(addErr) {
+				if (!addErr) {
+					console.log(
+						clc.bold.cyan('Footon: '), 
+						clc.white('staged database changes to "'), 
+						clc.bold.whiteBright(db.name), 
+						clc.white('" for commit')
+					);
 				} else {
 					console.log(
 						clc.bold.cyan('Footon: '), 
-						clc.red('failed to stage updates to"'), 
+						clc.red('failed to stage updates to "'), 
 						clc.bold.redBright(db.name), 
-						clc.white('"')
+						clc.red('"')
 					);
 				}
 			}, true);
@@ -115,13 +132,11 @@ Database.prototype.load = function() {
 	  , db_path = this.path
 	  , db = this;
 	// determine if db already exists
-	fs.exists(db_path, function(exists) {
-		if (exists) {
-			loadCollections(db_path, db);
-		} else {
-			createDatabase(db_path, loadCollections);
-		}
-	});
+	if (fs.existsSync(db_path)) {
+		loadCollections(db_path, db);
+	} else {
+		createDatabase(db_path, loadCollections);
+	}
 
 	// loads collections from path and attaches them to db
 	function loadCollections(target, database) {
@@ -196,32 +211,28 @@ Database.prototype.load = function() {
 	// passing in the path and db instance
 	function createDatabase(target, callback) {
 		// first make sure path is valid
-		fs.exists(config.path, function(exists) {
-			if (exists) {
-				make(target);
-			} else {
-				setup(make);
-			}
-		});
+		if (fs.existsSync(config.path)) {
+			make(target);
+		} else {
+			setup(make);
+		}
 		
 		function make(target) {
-			fs.mkdir(target, function(err) {
-				if (err) {
-					db.emit('error', err);
-				} else {
-					if (callback) callback.apply([target, db]);
-				}
-			});
+			try {
+				fs.mkdirSync(target);
+				if (callback) callback.apply([target, db]);
+			} catch(err) {
+				db.emit('error', err);					
+			}
 		};
 		
 		function setup(fn) {
-			fs.mkdir(config.path, function(err) {
-				if (err) {
-					db.emit('error', err);
-				} else {
-					if (fn) fn(target);
-				}
-			});
+			try {
+				fs.mkdirSync(config.path);
+				if (fn) fn(target);
+			} catch(err) {
+				db.emit('error', err);
+			} 
 		};
 	};
 };

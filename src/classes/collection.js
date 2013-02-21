@@ -92,8 +92,4 @@ Collection.prototype.save = function(callback, sync) {
 	}
 };
 
-Collection.prototype.updateRepository = function() {
-	var db = this.database;
-};
-
 module.exports = Collection;
