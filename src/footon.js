@@ -9,12 +9,12 @@ var Server = require('./classes/server.js')
 
 // expose function to return new instance of "Database" class
 // this is for local databases
-module.exports = function(db_name) {
-	return new Database(db_name);
+module.exports = function(dbName, readOnly) {
+	return new Database(dbName, readOnly);
 };
 
-module.exports.createServer = function() {
-	return new Server();
+module.exports.createServer = function(port, onReady) {
+	return new Server(port, onReady);
 };
 
 module.exports.createConnection = function() {

@@ -9,7 +9,7 @@ module.exports = {
 	path : __dirname + '/.databases',
 	collectionExtension : 'footon',
 	net : {
-		port : 7777,
+		port : 3333,
 		pass : null
 	},
 	queueInterval : 10

@@ -7,3 +7,68 @@
  * command-line-interface
  */
 
+var program = require('commander')
+  , clc = require('cli-color')
+  , util = require('util')
+  , config = require('./config.js')
+  , footon = require('./footon.js');
+
+program
+	.version('0.0.1')
+	.option('-d, --database [database name]', 'select database to load')
+	.option('-c, --collection [collection_name]', 'select collection to query')
+	.option('-q, --query [query]', 'query collection [{}]')
+	.option('-S, --server [port]', 'starts a footon server on specified port [3333]')
+.parse(process.argv);
+
+if (program.server) {
+	var port = parseInt(program.server) || config.net.port;
+	
+	// print information
+	printLogo();
+	console.log(
+		clc.bold.cyan('Footon: '), 
+		clc.white('starting server...')
+	);
+
+	var server = footon.createServer(function() {
+		console.log(
+			clc.bold.cyan('Footon: '), 
+			clc.white('server listening on port "'), 
+			clc.bold.whiteBright(port), 
+			clc.white('"')
+		);
+	});
+
+	server.listen(port);
+} 
+else if (program.database && program.collection && program.query) {
+	var db = footon(program.database, true);
+
+	db.on('ready', function() {
+		var collection = db.get(program.collection)
+		  , results = collection.find(JSON.parse(program.query));
+		console.log(
+			clc.bold.cyan('Footon: '), 
+			clc.white('results in collection "'), 
+			clc.bold.whiteBright(program.collection),
+			clc.white('"'),
+			clc.white('using database "'),
+			clc.bold.whiteBright(program.database),
+			clc.white('" :')
+		);
+		console.log(util.inspect(results, false, null, true));
+	});
+}
+else {
+	program.help();
+}
+
+function printLogo() {
+	console.log(clc.cyan('    ______            __            '));
+	console.log(clc.blue('   / ____/___  ____  / /_____  ____ '));
+	console.log(clc.cyan('  / /_  / __ \\/ __ \\/ __/ __ \\/ __ \\'));
+	console.log(clc.blue(' / __/ / /_/ / /_/ / /_/ /_/ / / / /'));
+	console.log(clc.cyan('/_/    \\____/\\____/\\__/\\____/_/ /_/ '));
+	console.log('');
+};

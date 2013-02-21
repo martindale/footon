@@ -9,6 +9,7 @@
 var fs = require('fs')
   , util = require('util')
   , path = require('path')
+  , clc = require('cli-color')
   , helpers = require('../helpers.js')
   , config = require('../config.js')
   , EventEmitter = require('events').EventEmitter
@@ -63,32 +64,32 @@ Collection.prototype.find = function(query) {
 };
 
 // save a new document to this collection
-Collection.prototype.add = function(document, callback) {
+Collection.prototype.add = function(document) {
 	var doc = null;
 	if (typeof document === 'object') {
 		// if it's a valid object, create a document instance
 		doc = new Document(document, this);
 		// add to contents
 		this.contents.push(doc);
-		// write update to disk
-		this.save(callback);
 	}
 	return doc;
 };
 
 // update collection file on disk
-Collection.prototype.save = function(callback) {
+Collection.prototype.save = function(callback, sync) {
 	var collection = this;
 	// this method can be called expilicity
 	// but is automatically called by Document.update()
 	var file = JSON.stringify(collection.contents);
 	// update collection file on disk
-	fs.writeFile(collection.path, file, function(err) {
-		if (err) collection.emit('err');
-		if (callback) callback.call(collection, err);
-	});
-	// this is called by Collection.save()
-	// to update document in collection and on disk (async)
+	if (sync) {
+		fs.writeFileSync(collection.path, file);
+	} else {
+		fs.writeFile(collection.path, file, function(err) {
+			if (err) collection.emit('err');
+			if (callback) callback.call(collection, err);
+		});
+	}
 };
 
 module.exports = Collection;

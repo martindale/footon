@@ -9,6 +9,7 @@
 var fs = require('fs')
   , util = require('util')
   , path = require('path')
+  , clc = require('cli-color')
   , helpers = require('../helpers.js')
   , config = require('../config.js')
   , EventEmitter = require('events').EventEmitter
@@ -46,7 +47,6 @@ Document.prototype.remove = function(callback) {
 	var position = this.__collection.contents.indexOf(this);
 	if (position !== -1) {
 		this.__collection.contents.splice(position, 1);
-		this.__collection.save(callback);
 	}
 };
 

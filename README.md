@@ -1,12 +1,18 @@
-footon
-======
+```
+    ______            __            
+   / ____/___  ____  / /_____  ____ 
+  / /_  / __ \/ __ \/ __/ __ \/ __ \
+ / __/ / /_/ / /_/ / /_/ /_/ / / / /
+/_/    \____/\____/\__/\____/_/ /_/ 
+                                    
+```
 
 **footon** is a simple file-system based JSON store with querying, built for packaged node-webkit applications.
 
 ## what footon is good for
 
 At it's core, footon is a JavaScript interface for creating organized collections of JSON documents 
-on the filesystem. It's a simple psueo-database that could be ideal for packaged applications with 
+on the filesystem. It's a simple psuedo-database that could be ideal for packaged applications with 
 the need to persist small amounts of data between sessions. Once a "collection" is read, it's 
 contents are stored in memory. It is a lightweight solution for applications needing to remember user 
 configuration or other data. All operations are asynchronous and all classes inherit from `EventEmitter` 
@@ -17,7 +23,7 @@ where applicable.
 Using Node Package Manager
 
 ```
-$ npm install footon
+$ npm install footon -g
 ```
 
 ## basic usage
@@ -106,13 +112,40 @@ myDatabase.on('ready', function() {
 });
 ```
 
-#### footon.createServer(options Object)
+#### footon.createServer(port Number, onReady Function)
 
-Feature currently unavailable.
+Returns an instance of `footon.Server`.
 
 #### footon.createConnection(options Object)
 
 Feature currently unavailable.
+
+## Command Line Interface
+
+Footon comes with the `footon` command line program. This program allows you to query your databases from the command line as well as start the Footon Query Server. The FQS exposes a single REST endpoint allowing remote requests to query the databases.
+
+### Querying 
+
+For more details usage information do:
+
+	$ footon --help
+
+To query the collection "test" in database "test" do:
+
+	$ footon -d test -c test -q {"name":"Gordon"}
+
+This would print a list of document where `name` is `"Gordon"`.
+
+### Footon Query Server
+
+To start the server on the default port:
+
+	$ footon -S
+
+This will start the server and respond to requests with JSON or JSONP (if a `callback` parameter is specified in the request). Below is an example request to perform the same query above remotely.
+
+	Request URL : http://localhost:3333/<database>/<collection>?query={"prop":"val"}
+	Request Method : GET
 
 ## Class Reference
 
@@ -136,23 +169,29 @@ Deletes database from disk.
 
 Returns an array of matched documents from the collection. If an array of object is passed, they are queried against "$or"-style. This method is recursive and will query sub-objects and arrays.
 
-##### Collection.add(document Object, callback Function)
+##### Collection.add(document Object)
 
 Returns a `Document` from the object passed and passes callback to `Collection.save()` which is called automatically.
 
-##### Collection.save(callback Function)
+##### Collection.save(callback Function, sync Boolean)
 
-Writes the current state of the collection to disk, then fires the passed `callback` if it exists.
+Writes the current state of the collection to disk, then fires the passed `callback` if it exists. Defaults to asynchronous, but will perform synchronous write if `sync` is set to `true`. All collections are written synchronously to disk on `process.exit`.
 
 #### footon.Document
 
 ##### Document.remove()
 
-Removes the document from it's collection and calls `Collection.save()`
+Removes the document from it's collection.
 
 #### footon.Server
 
-Feature currently unavailable.
+##### Server.listen(port)
+
+Starts the query server on the specified port. Defaults to `3333`.
+
+##### Server.bindRoutes()
+
+Sets up request routing. Automatically called on instantiation.
 
 #### footon.Connection
 

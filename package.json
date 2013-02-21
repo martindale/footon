@@ -1,11 +1,13 @@
 {
 	"name": "footon",
 	"preferGlobal" : true,
-	"version": "0.3.1",
+	"version": "0.3.3",
 	"description": "simple file-system based JSON store with querying",
 	"main": "./src/footon.js",
 	"dependencies": {
-		"commander" : "1.1.1"
+		"commander" : "1.1.1",
+		"cli-color" : "0.2.2",
+		"restify" : "2.2.1"
 	},
 	"repository": {
 		"type": "git",

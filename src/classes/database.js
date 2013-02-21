@@ -9,21 +9,40 @@
 var fs = require('fs')
   , util = require('util')
   , path = require('path')
+  , clc = require('cli-color')
   , helpers = require('../helpers.js')
   , config = require('../config.js')
   , EventEmitter = require('events').EventEmitter
   , Collection = require('./collection.js')
   , Database;
 
-Database = function(db_name) {
+Database = function(db_name, readOnly) {
 	var db = this
 	  , db_path = path.normalize(config.path) + '/' + db_name;
 
 	this.name = db_name;
 	this.path = db_path;
 	this.collections = {};
+	this.readOnly = readOnly || false;
 
 	db.load();
+
+	// commit changes to disk synchronously
+	// when the process exits
+	process.on('exit', function() {
+		if (!db.readOnly) {
+			for (var coll in db.collections) {
+				console.log(
+					clc.bold.cyan('Footon: '), 
+					clc.white('writing updates in "'), 
+					clc.bold.whiteBright(coll), 
+					clc.white('" to disk')
+				);
+				var collection = db.collections[coll];
+				collection.save(null, true);
+			}
+		}
+	});
 };
 
 // inherit from EventEmitter
