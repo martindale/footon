@@ -159,9 +159,21 @@ Loads the database collections into memory. Emits a `"ready"` event when finishe
 
 Returns an existing `Collection` or creates a new one.
 
-##### Database.reset()
+##### Database.remove()
 
 Deletes database from disk.
+
+##### Database.init(callback Function)
+
+Initializes a Git repository for the database. Automatically called on instantiation if uninitialized.
+
+##### Database.versions(callback Function)
+
+Passes an array of commits to the callback.
+
+##### Database.rollback(hash String, callback Function)
+
+Resets the database back to a specific version based on the commit hash.
 
 #### footon.Collection
 

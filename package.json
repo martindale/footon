@@ -7,7 +7,8 @@
 	"dependencies": {
 		"commander" : "1.1.1",
 		"cli-color" : "0.2.2",
-		"restify" : "2.2.1"
+		"restify" : "2.2.1",
+		"gitty" : "1.2.0"
 	},
 	"repository": {
 		"type": "git",
