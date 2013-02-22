@@ -17,18 +17,19 @@ var restify = require('restify')
   , Server;
 
 Server = function(dbName, onReady) {
+	var server = this;
  	// create server
-	this.server = restify.createServer({
+	server.server = restify.createServer({
 		name: 'Footon',
 	});
 	// remember what to do on ready
-	this.onReady = onReady;
+	server.onReady = onReady;
 
 	// get database
-	this.db = new Database(dbName);
-	this.db.on('ready', function() {
+	server.db = new Database(dbName);
+	server.db.on('ready', function() {
 		// initialize routing
-		this.bindRoutes();
+		server.bindRoutes();
 	});
 };
 

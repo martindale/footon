@@ -32,6 +32,7 @@ Database = function(db_name, readOnly) {
 	
 	// make sure this is a git repo
 	// if it isn't, initialize it
+	/*
 	if (!db.repository.isRepository) {
 		console.log(
 			clc.bold.cyan('Footon: '), 
@@ -55,6 +56,7 @@ Database = function(db_name, readOnly) {
 			}
 		});
 	}
+
 	
 	// commit staged files
 	console.log(
@@ -84,7 +86,7 @@ Database = function(db_name, readOnly) {
 			);
 		}
 	}, false);
-	
+	*/
 	// commit changes to disk synchronously
 	// when the process exits
 	process.on('exit', function() {
@@ -101,6 +103,7 @@ Database = function(db_name, readOnly) {
 				collection.save(null, true);
 				files.push(collection.path);
 			}
+			/*
 			// stage files for commit
 			db.repository.add(files, function(addErr) {
 				if (!addErr) {
@@ -119,6 +122,7 @@ Database = function(db_name, readOnly) {
 					);
 				}
 			}, true);
+			*/
 		}
 	});
 };

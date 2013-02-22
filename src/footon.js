@@ -13,8 +13,8 @@ module.exports = function(dbName, readOnly) {
 	return new Database(dbName, readOnly);
 };
 
-module.exports.createServer = function(port, onReady) {
-	return new Server(port, onReady);
+module.exports.createServer = function(dbName, onReady) {
+	return new Server(dbName, onReady);
 };
 
 module.exports.createConnection = function() {
