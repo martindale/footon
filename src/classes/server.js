@@ -26,7 +26,7 @@ Server = function(dbName, onReady) {
 
 	// get database
 	this.db = new Database(dbName);
-	db.on('ready', function() {
+	this.db.on('ready', function() {
 		// initialize routing
 		this.bindRoutes();
 	});
