@@ -140,7 +140,7 @@ This would print a list of document where `name` is `"Gordon"`.
 
 To start the server on the default port:
 
-	$ footon -S
+	$ footon -d <database> -S
 
 This will start the server and respond to requests with JSON or JSONP (if a `callback` parameter is specified in the request). Below is an example request to perform the same query above remotely.
 
