@@ -34,7 +34,7 @@ if (program.database && program.server) {
 	var server = footon.createServer(program.database, function() {
 		console.log(
 			clc.bold.cyan('Footon: '), 
-			clc.white('serving', program.database, ' on port "'), 
+			clc.white('serving "', clc.bold.white(program.database), '" on port "'), 
 			clc.bold.whiteBright(port), 
 			clc.white('"')
 		);
