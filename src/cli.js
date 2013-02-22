@@ -21,7 +21,7 @@ program
 	.option('-S, --server [port]', 'starts a footon server on specified port [3333]')
 .parse(process.argv);
 
-if (program.server) {
+if (program.database && program.server) {
 	var port = parseInt(program.server) || config.net.port;
 	
 	// print information
@@ -31,10 +31,10 @@ if (program.server) {
 		clc.white('starting server...')
 	);
 
-	var server = footon.createServer(function() {
+	var server = footon.createServer(program.database, function() {
 		console.log(
 			clc.bold.cyan('Footon: '), 
-			clc.white('server listening on port "'), 
+			clc.white('serving', program.database, ' on port "'), 
 			clc.bold.whiteBright(port), 
 			clc.white('"')
 		);

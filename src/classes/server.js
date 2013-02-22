@@ -16,15 +16,20 @@ var restify = require('restify')
   , Database = require('./database.js')
   , Server;
 
-Server = function(onReady) {
+Server = function(dbName, onReady) {
  	// create server
 	this.server = restify.createServer({
 		name: 'Footon',
 	});
 	// remember what to do on ready
 	this.onReady = onReady;
-	// initialize routing
-	this.bindRoutes();
+
+	// get database
+	this.db = new Database(dbName);
+	db.on('ready', function() {
+		// initialize routing
+		this.bindRoutes();
+	});
 };
 
 util.inherits(Server, EventEmitter);
@@ -39,14 +44,14 @@ Server.prototype.listen = function(port) {
 };
 
 Server.prototype.bindRoutes = function() {
-	var svc = this.server;
+	var svc = this.server
+	  , db = this.db;
 
 	// for now we will just expose a json api
 	// for querying only - jsonp also
-	svc.get('/:database/:collection', function(req, res) {
+	svc.get('/:collection', function(req, res) {
 
-		var dbName = req.params.database
-		  , collName = req.params.collection
+		var collName = req.params.collection
 		  , query = JSON.parse(qs.parse(req.query()).query)
 		  , jsonpCallback = qs.parse(req.query()).callback
 		
@@ -55,9 +60,6 @@ Server.prototype.bindRoutes = function() {
 			clc.bold.cyan('Footon: '), 
 			clc.white('received query request'), 
 			'\n',
-			clc.bold.whiteBright('* Database: '),
-			clc.white(dbName), 
-			'\n',
 			clc.bold.whiteBright('* Collection: '),
 			clc.white(collName),
 			'\n',
@@ -65,19 +67,14 @@ Server.prototype.bindRoutes = function() {
 			clc.white(JSON.stringify(query))
 		);
 
-		  // get database
-		  var db = new Database(dbName);
-
-		  db.on('ready', function() {
-		  	var coll = db.get(collName)
-		  	  , results = JSON.stringify(coll.find(query))
-		  	  , response = (jsonpCallback) ? jsonpCallback + '(' + results + ')' : results;
-		  	res.end(response);
-		  	console.log(
-				clc.bold.cyan('Footon: '), 
-				clc.white('responded with ' + JSON.parse(results).length + ' matched documents')
-			);
-		  });
+	  	var coll = db.get(collName)
+	  	  , results = JSON.stringify(coll.find(query))
+	  	  , response = (jsonpCallback) ? jsonpCallback + '(' + results + ')' : results;
+	  	res.end(response);
+	  	console.log(
+			clc.bold.cyan('Footon: '), 
+			clc.white('responded with ' + JSON.parse(results).length + ' matched documents')
+		);
 	});
 };
 
