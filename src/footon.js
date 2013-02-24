@@ -17,6 +17,6 @@ module.exports.createServer = function(dbName, onReady) {
 	return new Server(dbName, onReady);
 };
 
-module.exports.createConnection = function() {
-	return new Connection();
+module.exports.createConnection = function(host, port, user, pass) {
+	return new Connection(host, port, user, pass);
 };

@@ -7,7 +7,7 @@
                                     
 ```
 
-**footon** is a simple file-system based JSON store with querying, built for packaged node-webkit applications.
+**footon** is a simple file-system based JSON store with querying, with support for remote connections.
 
 ## what footon is good for
 
@@ -15,8 +15,7 @@ At it's core, footon is a JavaScript interface for creating organized collection
 on the filesystem. It's a simple psuedo-database that could be ideal for packaged applications with 
 the need to persist small amounts of data between sessions. Once a "collection" is read, it's 
 contents are stored in memory. It is a lightweight solution for applications needing to remember user 
-configuration or other data. All operations are asynchronous and all classes inherit from `EventEmitter` 
-where applicable.
+configuration or other data.
 
 ## installation
 
@@ -116,13 +115,15 @@ myDatabase.on('ready', function() {
 
 Returns an instance of `footon.Server`.
 
-#### footon.createConnection(options Object)
+#### footon.createConnection(host String, port Number, user String, pass String)
 
-Feature currently unavailable.
+Returns an instance of `Connection`.
 
 ## Command Line Interface
 
-Footon comes with the `footon` command line program. This program allows you to query your databases from the command line as well as start the Footon Query Server. The FQS exposes a single REST endpoint allowing remote requests to query the databases.
+Footon comes with the `footon` command line program. This program allows you to query your databases from the command line as well as start the Footon Server. This exposes a REST api allowing remote requests to query the database as well as allowing remote applications to use footon over a socket connection via an identical API.
+
+The default port is `3333`. REST API listens on the next port  up (`3334`). If you tell footon to listen on `8080`, the REST API will listen on `8081`.
 
 ### Querying 
 
@@ -136,7 +137,7 @@ To query the collection "test" in database "test" do:
 
 This would print a list of document where `name` is `"Gordon"`.
 
-### Footon Query Server
+### Footon Server
 
 To start the server on the default port:
 
@@ -144,8 +145,27 @@ To start the server on the default port:
 
 This will start the server and respond to requests with JSON or JSONP (if a `callback` parameter is specified in the request). Below is an example request to perform the same query above remotely.
 
-	Request URL : http://localhost:3333/<database>/<collection>?query={"prop":"val"}
+	Request URL : http://localhost:3334/<database>/<collection>?query={"prop":"val"}
 	Request Method : GET
+	
+### Using a Remote Footon Server
+
+The footon API is almost exactly the same when connecting to a remote server. The difference is in how you obtain the `Database` instance.
+
+```javascript
+var connection = footon.createConnection('127.0.0.1', 3333);
+
+connection.on('ready', function(db) { // callback gets a ready Database instance
+	var test = db.get('test');
+	test.add({
+		addedRemotely : true,
+		date : new Date().toDateString()
+	});
+	// update remote database manually
+	// automatically happens when the connection closes
+	db.save();
+});
+```
 
 ## Class Reference
 
@@ -201,10 +221,16 @@ Removes the document from it's collection.
 
 Starts the query server on the specified port. Defaults to `3333`.
 
-##### Server.bindRoutes()
+##### Server.setRestEndpoints()
 
-Sets up request routing. Automatically called on instantiation.
+Sets up REST API routing. Automatically called on instantiation.
+
+##### Server.handleRemoteRequests()
+
+Handles incoming data from remote client.
 
 #### footon.Connection
 
-Feature currently unavailable.
+##### Connection.close()
+
+Closes the connection with the remote server.
