@@ -28,16 +28,24 @@ if (program.database && program.server) {
 	printLogo();
 	console.log(
 		clc.bold.cyan('Footon: '), 
-		clc.white('starting server...')
+		clc.white('starting servers...')
 	);
 
 	var server = footon.createServer(program.database, function() {
+		// inform log of net server
 		console.log(
 			clc.bold.cyan('Footon: '), 
-			clc.white('serving "'), 
+			clc.white('database "'), 
 			clc.bold.white(program.database), 
-			clc.white('" on port "'), 
+			clc.white('" listening on port "'), 
 			clc.bold.whiteBright(port), 
+			clc.white('"')
+		);
+		// inform log of query server
+		console.log(
+			clc.bold.cyan('Footon: '), 
+			clc.white('rest api listening on port "'), 
+			clc.bold.whiteBright(port + 1), 
 			clc.white('"')
 		);
 	});

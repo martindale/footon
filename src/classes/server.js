@@ -13,12 +13,14 @@ var restify = require('restify')
   , EventEmitter = require('events').EventEmitter
   , qs = require('querystring')
   , config = require('../config.js')
+  , net = require('net')
   , Database = require('./database.js')
+  , Collection = require('./collection.js')
   , Server;
 
 Server = function(dbName, onReady) {
 	var server = this;
- 	// create server
+ 	// create query server
 	server.server = restify.createServer({
 		name: 'Footon',
 	});
@@ -29,22 +31,92 @@ Server = function(dbName, onReady) {
 	server.db = new Database(dbName);
 	server.db.on('ready', function() {
 		// initialize routing
-		server.bindRoutes();
+		server.setRestEndpoints();
+	});
+
+	// create tcp server
+	server.socket = net.createServer(function(socket) {
+		// update databse when new data is received
+		socket.on('data', function(data) {
+			try {
+				var collections = {}
+				  , newCollections = JSON.parse(data);
+				if (typeof newCollections === 'object') {
+					for (var coll in newCollections) {
+						collections[coll] = new Collection(
+							newCollections[coll].contents,
+							coll,
+							server.db
+						);
+						console.log(
+							clc.bold.cyan('Footon: '), 
+							clc.white('updating collection: "'),
+							clc.white.bold(coll),
+							clc.white('"')
+						);
+					}
+					server.db.collections = collections;
+				}
+			} catch(e) {
+				console.log(
+					clc.bold.cyan('Footon: '), 
+					clc.red('invalid data received - aborting database update')
+				);
+			}
+		});
+		// log where the connection came from
+		console.log(
+			clc.bold.cyan('Footon: '), 
+			clc.white('client connected from "'), 
+			clc.bold.whiteBright(socket.address().address),
+			clc.white('"')
+		);
+		// send the client a copy of the data base for consumption
+		socket.write(JSON.stringify(server.db));
+		socket.pipe(socket);
+		socket.on('end', function() {
+			console.log(
+				clc.bold.cyan('Footon: '), 
+				clc.white('client disconnected - updating database')
+			);
+			server.db.save();
+		});
 	});
 };
 
 util.inherits(Server, EventEmitter);
 
 Server.prototype.listen = function(port) {
-	var server = this;
+	var server = this
+	  , queryServerListening = false
+	  , socketServerListening = false;
+
+	port = port || config.net.port;
 	// go ahead and listen
-	server.server.listen(port || config.net.port, function() {
-		if (server.onReady) server.onReady.call(this, server.server);
-		server.emit('ready', server);
+	server.server.listen(port + 1, function() {
+		queryServerListening = true;
+		ready();
 	});
+
+	server.socket.listen(port, function() {
+		socketServerListening = true;
+		ready();
+	});
+
+	function ready() {
+		if (queryServerListening && socketServerListening) {
+			if (server.onReady) server.onReady.call(this, server.server);
+			server.emit('ready', server);
+		}
+	};
 };
 
-Server.prototype.bindRoutes = function() {
+Server.prototype.handleRemoteRequest = function(req) {
+	console.log('no error')
+	return req = JSON.parse(req.toString());
+};
+
+Server.prototype.setRestEndpoints = function() {
 	var svc = this.server
 	  , db = this.db;
 

@@ -1,14 +1,13 @@
 {
 	"name": "footon",
 	"preferGlobal" : true,
-	"version": "0.3.6",
+	"version": "0.3.7",
 	"description": "simple file-system based JSON store with querying",
 	"main": "./src/footon.js",
 	"dependencies": {
 		"commander" : "1.1.1",
 		"cli-color" : "0.2.2",
-		"restify" : "2.2.1",
-		"gitty" : "1.2.0"
+		"restify" : "2.2.1"
 	},
 	"repository": {
 		"type": "git",
@@ -20,7 +19,7 @@
 		"json database"
 	],
 	"author": "Gordon Hall <gordon@gordonwritescode.com>",
-	"license": "BSD",
+	"license": "MIT",
 	"bin": {
 		"footon" : "src/cli.js"
 	}
