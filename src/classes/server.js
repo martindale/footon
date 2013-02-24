@@ -36,34 +36,7 @@ Server = function(dbName, onReady) {
 
 	// create tcp server
 	server.socket = net.createServer(function(socket) {
-		// update databse when new data is received
-		socket.on('data', function(data) {
-			try {
-				var collections = {}
-				  , newCollections = JSON.parse(data);
-				if (typeof newCollections === 'object') {
-					for (var coll in newCollections) {
-						collections[coll] = new Collection(
-							newCollections[coll].contents,
-							coll,
-							server.db
-						);
-						console.log(
-							clc.bold.cyan('Footon: '), 
-							clc.white('updating collection: "'),
-							clc.white.bold(coll),
-							clc.white('"')
-						);
-					}
-					server.db.collections = collections;
-				}
-			} catch(e) {
-				console.log(
-					clc.bold.cyan('Footon: '), 
-					clc.red('invalid data received - aborting database update')
-				);
-			}
-		});
+		server.handleRemoteRequests(socket);
 		// log where the connection came from
 		console.log(
 			clc.bold.cyan('Footon: '), 
@@ -73,7 +46,7 @@ Server = function(dbName, onReady) {
 		);
 		// send the client a copy of the data base for consumption
 		socket.write(JSON.stringify(server.db));
-		socket.pipe(socket);
+
 		socket.on('end', function() {
 			console.log(
 				clc.bold.cyan('Footon: '), 
@@ -86,7 +59,7 @@ Server = function(dbName, onReady) {
 
 util.inherits(Server, EventEmitter);
 
-Server.prototype.listen = function(port) {
+Server.prototype.listen = function(port, host, backlog, callback) {
 	var server = this
 	  , queryServerListening = false
 	  , socketServerListening = false;
@@ -98,7 +71,7 @@ Server.prototype.listen = function(port) {
 		ready();
 	});
 
-	server.socket.listen(port, function() {
+	server.socket.listen(port, host, backlog, function() {
 		socketServerListening = true;
 		ready();
 	});
@@ -111,9 +84,36 @@ Server.prototype.listen = function(port) {
 	};
 };
 
-Server.prototype.handleRemoteRequest = function(req) {
-	console.log('no error')
-	return req = JSON.parse(req.toString());
+Server.prototype.handleRemoteRequests = function(socket) {
+	var server = this;
+	// update databse when new data is received
+	socket.on('data', function(data) {
+		try {
+			var collections = {}
+			  , newCollections = JSON.parse(data.toString());
+			if (typeof newCollections === 'object') {
+				for (var coll in newCollections) {
+					collections[coll] = new Collection(
+						newCollections[coll].contents,
+						coll,
+						server.db
+					);
+					console.log(
+						clc.bold.cyan('Footon: '), 
+						clc.white('updating collection: "'),
+						clc.white.bold(coll),
+						clc.white('"')
+					);
+				}
+				server.db.collections = collections;
+			}
+		} catch(e) {
+			console.log(
+				clc.bold.cyan('Footon: '), 
+				clc.red('invalid data received - aborting database update')
+			);
+		}
+	});
 };
 
 Server.prototype.setRestEndpoints = function() {

@@ -34,11 +34,13 @@ Collection = function(contents, name, database) {
 		writable : false
 	});
 	
-	Object.defineProperty(this, 'path', {
-		enumerable : false,
-		value : database.path + '/' + name,
-		writable : false
-	});
+	if (!database.socket) {
+		Object.defineProperty(this, 'path', {
+			enumerable : false,
+			value : database.path + '/' + name,
+			writable : false
+		});
+	}
 	
 	Object.defineProperty(this, 'name', {
 		enumerable : false,
@@ -77,18 +79,20 @@ Collection.prototype.add = function(document) {
 
 // update collection file on disk
 Collection.prototype.save = function(callback, sync) {
-	var collection = this;
-	// this method can be called expilicity
-	// but is automatically called by Document.update()
-	var file = JSON.stringify(collection.contents);
-	// update collection file on disk
-	if (sync) {
-		fs.writeFileSync(collection.path, file);
-	} else {
-		fs.writeFile(collection.path, file, function(err) {
-			if (err) collection.emit('err');
-			if (callback) callback.call(collection, err);
-		});
+	if (!this.database.socket) {
+		var collection = this;
+		// this method can be called expilicity
+		// but is automatically called by Document.update()
+		var file = JSON.stringify(collection.contents);
+		// update collection file on disk
+		if (sync) {
+			fs.writeFileSync(collection.path, file);
+		} else {
+			fs.writeFile(collection.path, file, function(err) {
+				if (err) collection.emit('err');
+				if (callback) callback.call(collection, err);
+			});
+		}
 	}
 };
 

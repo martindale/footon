@@ -17,18 +17,20 @@ var fs = require('fs')
   , Collection = require('./collection.js')
   , Database;
 
-Database = function(db_name, readOnly) {
+Database = function(db_name, readOnly, socket) {
 	var db = this
 	  , db_path = path.normalize(config.path) + '/' + db_name;
 
 	this.name = db_name;
-	this.path = db_path;
+	this.path = (!socket) ? db_path : null;
 	this.collections = {};
 	this.readOnly = readOnly || false;
+	this.socket = socket || null;
 	
-	// load db into memory
-	db.load();
-	
+	if (!socket) {
+		// load db into memory
+		db.load();
+	}
 	// commit changes to disk synchronously
 	// when the process exits
 	process.on('exit', function() {
@@ -44,11 +46,15 @@ Database.prototype.load = function() {
 	var totalCollections = 0
 	  , db_path = this.path
 	  , db = this;
-	// determine if db already exists
-	if (fs.existsSync(db_path)) {
-		loadCollections(db_path, db);
-	} else {
-		createDatabase(db_path, loadCollections);
+
+	// only for local databses
+	if (!this.socket) {
+		// determine if db already exists
+		if (fs.existsSync(db_path)) {
+			loadCollections(db_path, db);
+		} else {
+			createDatabase(db_path, loadCollections);
+		}
 	}
 
 	// loads collections from path and attaches them to db
@@ -163,25 +169,39 @@ Database.prototype.get = function(collection_name) {
 // remove database and delete from disk
 Database.prototype.remove = function() {
 	var db = this;
-	helpers.removeDirForce(this.path + '/', function(err) {
-		db.emit('error', err);
-	});
+	if (!this.socket) {
+		helpers.removeDirForce(this.path + '/', function(err) {
+			db.emit('error', err);
+		});
+	}
+};
+
+// consume arbitrary collections
+Database.prototype.consume = function(collections) {
+	for (var coll in collections) {
+		this.collections[coll] = new Collection(collections[coll].contents, coll, this);
+	}
 };
 
 Database.prototype.save = function() {
-	if (!this.readOnly) {
-		var files = [];
-		for (var coll in this.collections) {
-			console.log(
-				clc.bold.cyan('Footon: '), 
-				clc.white('writing updates in "'), 
-				clc.bold.whiteBright(coll), 
-				clc.white('" to disk')
-			);
-			var collection = this.collections[coll];
-			collection.save(null, true);
-			files.push(collection.path);
+	if (!this.socket) {
+		if (!this.readOnly) {
+			var files = [];
+			for (var coll in this.collections) {
+				console.log(
+					clc.bold.cyan('Footon: '), 
+					clc.white('writing updates in "'), 
+					clc.bold.whiteBright(coll), 
+					clc.white('" to disk')
+				);
+				var collection = this.collections[coll];
+				collection.save(null, true);
+				files.push(collection.path);
+			}
 		}
+	} else {
+		console.log(JSON.stringify(this.collections))
+		this.socket.write(JSON.stringify(this.collections));
 	}
 };
 

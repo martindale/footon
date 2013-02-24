@@ -2,3 +2,4 @@ node_modules
 .project
 src/.databases
 test.js
+test2.js
