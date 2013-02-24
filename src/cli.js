@@ -25,7 +25,7 @@ if (program.database && program.server) {
 	var port = parseInt(program.server) || config.net.port;
 	
 	// print information
-	printLogo();
+	printLogo(true);
 	console.log(
 		clc.bold.cyan('Footon: '), 
 		clc.white('starting servers...')
@@ -74,11 +74,21 @@ else {
 	program.help();
 }
 
-function printLogo() {
-	console.log(clc.cyan('    ______            __            '));
-	console.log(clc.blue('   / ____/___  ____  / /_____  ____ '));
-	console.log(clc.cyan('  / /_  / __ \\/ __ \\/ __/ __ \\/ __ \\'));
-	console.log(clc.blue(' / __/ / /_/ / /_/ / /_/ /_/ / / / /'));
-	console.log(clc.cyan('/_/    \\____/\\____/\\__/\\____/_/ /_/ '));
-	console.log('');
+function printLogo(alt) {
+	if (alt) {
+		console.log(clc.cyan('    __  _____           _               __   '));
+		console.log(clc.blue('   / / |  ___|__   ___ | |_ ___  _ __   \\ \\  '));
+		console.log(clc.cyan('  | |  | |_ / _ \\ / _ \\| __/ _ \\| \'_ \\   | | '));
+		console.log(clc.blue(' < <   |  _| (_) | (_) | || (_) | | | |   > >'));
+		console.log(clc.cyan('  | |  |_|  \\___/ \\___/ \\__\\___/|_| |_|  | | '));
+		console.log(clc.blue('   \\_\\                                  /_/  '));
+		console.log('');
+	} else {
+		console.log(clc.cyan('    ______            __            '));
+		console.log(clc.blue('   / ____/___  ____  / /_____  ____ '));
+		console.log(clc.cyan('  / /_  / __ \\/ __ \\/ __/ __ \\/ __ \\'));
+		console.log(clc.blue(' / __/ / /_/ / /_/ / /_/ /_/ / / / /'));
+		console.log(clc.cyan('/_/    \\____/\\____/\\__/\\____/_/ /_/ '));
+		console.log('');
+	}
 };
