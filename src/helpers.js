@@ -113,7 +113,7 @@ module.exports.queryCollection = function(obj, collection_contents) {
 module.exports.matchesQuery = function(query, document) {
 	var isMatch = false
 	for (var prop in query) {
-		if (typeof query[prop] === 'object') {
+		if (typeof query[prop] === 'object' && document[prop]) {
 			// this will also iterate over arrays even though
 			// it is a for ... in loop, but we should be fine
 			// since we are still sort of enumerating instead of
