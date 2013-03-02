@@ -10,7 +10,6 @@ var fs = require('fs')
   , util = require('util')
   , path = require('path')
   , clc = require('cli-color')
-  , git = require('gitty')
   , helpers = require('../helpers.js')
   , config = require('../config.js')
   , EventEmitter = require('events').EventEmitter
