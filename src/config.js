@@ -6,11 +6,9 @@
  */
 
 module.exports = {
-	path : __dirname + '/.databases',
-	collectionExtension : 'footon',
+	path : process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'] + '/.footon',
 	net : {
 		port : 3333,
 		pass : null
-	},
-	queueInterval : 10
+	}
 };
