@@ -25,7 +25,8 @@ Database = function(db_name, readOnly, socket) {
 	this.collections = {};
 	this.readOnly = readOnly || false;
 	this.socket = socket || null;
-	
+  this.verbose = false;
+
 	if (!socket) {
 		// load db into memory
 		db.load();
@@ -91,7 +92,7 @@ Database.prototype.load = function() {
 					}
 				}
 			});
-			
+
 			function readCollection(collection_path, callback) {
 				fs.readFile(collection_path, function(err, contents) {
 					if (err) {
@@ -101,7 +102,7 @@ Database.prototype.load = function() {
 					}
 				});
 			};
-			
+
 			function parseCollection(contents) {
 			//	try {
 					var parsed = JSON.parse(contents);
@@ -115,7 +116,7 @@ Database.prototype.load = function() {
 			//		checkReadiness();
 			//	}
 			};
-			
+
 			function checkReadiness() {
 				// do this after loadin
 				if (index === totalCollections - 1 || totalCollections === 0) {
@@ -134,23 +135,23 @@ Database.prototype.load = function() {
 		} else {
 			setup(make);
 		}
-		
+
 		function make(target) {
 			try {
 				fs.mkdirSync(target);
 				if (callback) callback.apply([target, db]);
 			} catch(err) {
-				db.emit('error', err);					
+				db.emit('error', err);
 			}
 		};
-		
+
 		function setup(fn) {
 			try {
 				fs.mkdirSync(config.path);
 				if (fn) fn(target);
 			} catch(err) {
 				db.emit('error', err);
-			} 
+			}
 		};
 	};
 };
@@ -187,12 +188,14 @@ Database.prototype.save = function() {
 		if (!this.readOnly) {
 			var files = [];
 			for (var coll in this.collections) {
-				console.log(
-					clc.bold.cyan('Footon: '), 
-					clc.white('writing updates in "'), 
-					clc.bold.whiteBright(coll), 
-					clc.white('" to disk')
-				);
+				if (this.verbose) {
+          console.log(
+  					clc.bold.cyan('Footon: '),
+  					clc.white('writing updates in "'),
+  					clc.bold.whiteBright(coll),
+  					clc.white('" to disk')
+  				);
+        }
 				var collection = this.collections[coll];
 				collection.save(null, true);
 				files.push(collection.path);
